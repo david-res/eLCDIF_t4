@@ -68,14 +68,11 @@ enum BUS_WIDTH {
         BUS_24BIT = 3
     };
 enum WORD_LENGTH{
-        WIDTH_8BIT = 1,
-        WIDTH_16BIT = 0,
-        WIDTH_18BIT = 2,
-        WIDTH_24BIT = 3
+        WORD_8BIT = 1,
+        WORD_16BIT = 0,
+        WORD_18BIT = 2,
+        WORD_24BIT = 3
     };
-
-
-
 
 typedef struct {
   uint32_t height;
@@ -91,29 +88,29 @@ typedef struct {
   uint32_t clk_den; // pix_clk denominator
   uint32_t vpolarity; // 0 (active low vsync/negative) or LCDIF_VDCTRL0_VSYNC_POL (active high/positive)
   uint32_t hpolarity; // 0 (active low hsync/negative) or LCDIF_VDCTRL0_HSYNC_POL (active high/positive)
-  BUS_WIDTH bus_width;
-  WORD_LENGTH word_length;
-  
-
 } lcdif_rgb_mode_config;
 
 class eLCDIF_t4 {
     public:
-    void begin(int busWidth, int colorDepth, lcdif_rgb_mode_config*config)
+    void begin(BUS_WIDTH busWidth, WORD_LENGTH colorDepth, lcdif_rgb_mode_config config);
     void setCurrentBufferAddress(const void*buffer);
     void setNextBufferAddress(const void*buffer);
     typedef void(*CBF)();
-    CBF _callback;
+    static CBF _callback;
     void onCompleteCallback(CBF callback);
     
     private:
     int _busWidth, _colorDepth;
     void setVideoClock(int num, int den);
     void initPins();
-    void initLCDIF(lcdif_rgb_mode_config*config);
-    volatile bool s_frameDone = false
+    void initLCDIF(lcdif_rgb_mode_config config);
+  
+    static volatile bool s_frameDone;
+    static void LCDIF_ISR();
     void lcdifCallback();
     bool customCallback = false;
-    static eLCDIF_t4 *LCDIFcallback;
-}
+    eLCDIF_t4 *LCDIFcallback;
+
+    void InitLUT();
+};
 #endif

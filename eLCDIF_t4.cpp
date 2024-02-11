@@ -2,12 +2,12 @@
 
 
 //Public Functions
-void eLCDIF_t4::begin(int busWidth, int colorDepth, lcdif_rgb_mode_config*config){
+void eLCDIF_t4::begin(BUS_WIDTH busWidth, WORD_LENGTH colorDepth, lcdif_rgb_mode_config config){
   _busWidth = busWidth;
   _colorDepth = colorDepth;
-  setVideoClock(4*config.num, config.den);
+  setVideoClock(4*config.clk_num, config.clk_den);
   initPins();
-  initLCDIF(&config);
+  initLCDIF(config);
 
 
   attachInterruptVector(IRQ_LCDIF, LCDIF_ISR);
@@ -28,11 +28,11 @@ void eLCDIF_t4::begin(int busWidth, int colorDepth, lcdif_rgb_mode_config*config
 };
 
 void eLCDIF_t4::setCurrentBufferAddress(const void*buffer){
-  LCDIF_CUR_BUF = buffer;
+  LCDIF_CUR_BUF = (uint32_t)buffer;
 
 };
 void eLCDIF_t4::setNextBufferAddress(const void*buffer){
-  LCDIF_NEXT_BUF = buffer;
+  LCDIF_NEXT_BUF = (uint32_t)buffer;
 
 };
 void eLCDIF_t4::onCompleteCallback(CBF callback){
@@ -176,7 +176,7 @@ void eLCDIF_t4::initPins(){
 
 };
 
-void initLCDIF(lcdif_rgb_mode_config*config){
+void eLCDIF_t4::initLCDIF(lcdif_rgb_mode_config config){
   Serial.print("Resetting LCDIF...");
   // reset LCDIF
   // ungate clock and wait for it to clear
@@ -200,23 +200,26 @@ void initLCDIF(lcdif_rgb_mode_config*config){
   LCDIF_CTRL = LCDIF_CTRL_WORD_LENGTH(3) | LCDIF_CTRL_LCD_DATABUS_WIDTH(3) | LCDIF_CTRL_DOTCLK_MODE | LCDIF_CTRL_BYPASS_COUNT | LCDIF_CTRL_MASTER;
   // recover on underflow = garbage will be displayed if memory is too slow, but at least it keeps running instead of aborting
   LCDIF_CTRL1 = LCDIF_CTRL1_RECOVER_ON_UNDERFLOW | LCDIF_CTRL1_BYTE_PACKING_FORMAT(0x07);
-  LCDIF_TRANSFER_COUNT = LCDIF_TRANSFER_COUNT_V_COUNT(config->height) | LCDIF_TRANSFER_COUNT_H_COUNT(config->width);
+  LCDIF_TRANSFER_COUNT = LCDIF_TRANSFER_COUNT_V_COUNT(config.height) | LCDIF_TRANSFER_COUNT_H_COUNT(config.width);
   // set vsync and hsync signal polarity (depends on mode/resolution), vsync length
-  LCDIF_VDCTRL0 = LCDIF_VDCTRL0_ENABLE_PRESENT | LCDIF_VDCTRL0_VSYNC_PERIOD_UNIT | LCDIF_VDCTRL0_VSYNC_PULSE_WIDTH_UNIT | LCDIF_VDCTRL0_VSYNC_PULSE_WIDTH(config->vsw) | config->vpolarity | config->hpolarity;
+  LCDIF_VDCTRL0 = LCDIF_VDCTRL0_ENABLE_PRESENT | LCDIF_VDCTRL0_VSYNC_PERIOD_UNIT | LCDIF_VDCTRL0_VSYNC_PULSE_WIDTH_UNIT | LCDIF_VDCTRL0_VSYNC_PULSE_WIDTH(config.vsw) | config.vpolarity | config.hpolarity;
   // total lines
-  LCDIF_VDCTRL1 = config->height+config->vfp+config->vsw+config->vbp;
+  LCDIF_VDCTRL1 = config.height+config.vfp+config.vsw+config.vbp;
   // hsync length, line = width+HBP+HSW+HFP
-  LCDIF_VDCTRL2 = LCDIF_VDCTRL2_HSYNC_PULSE_WIDTH(config->hsw) | LCDIF_VDCTRL2_HSYNC_PERIOD(config->width+config->hfp+config->hsw+config->hbp);
+  LCDIF_VDCTRL2 = LCDIF_VDCTRL2_HSYNC_PULSE_WIDTH(config.hsw) | LCDIF_VDCTRL2_HSYNC_PERIOD(config.width+config.hfp+config.hsw+config.hbp);
   // horizontal wait = back porch + sync, vertical wait = back porch + sync
-  LCDIF_VDCTRL3 = LCDIF_VDCTRL3_HORIZONTAL_WAIT_CNT(config->hsw+config->hbp) | LCDIF_VDCTRL3_VERTICAL_WAIT_CNT(config->vsw+config->vbp);
-  LCDIF_VDCTRL4 = LCDIF_VDCTRL4_SYNC_SIGNALS_ON | LCDIF_VDCTRL4_DOTCLK_H_VALID_DATA_CNT(config->width);
+  LCDIF_VDCTRL3 = LCDIF_VDCTRL3_HORIZONTAL_WAIT_CNT(config.hsw+config.hbp) | LCDIF_VDCTRL3_VERTICAL_WAIT_CNT(config.vsw+config.vbp);
+  LCDIF_VDCTRL4 = LCDIF_VDCTRL4_SYNC_SIGNALS_ON | LCDIF_VDCTRL4_DOTCLK_H_VALID_DATA_CNT(config.width);
   Serial.println("done.");
 
 
 };
 
+volatile bool eLCDIF_t4::s_frameDone = false;
+eLCDIF_t4::CBF eLCDIF_t4::_callback = nullptr;
 
-static void LCDIF_ISR(void) {
+
+void eLCDIF_t4::LCDIF_ISR(void) {
   uint32_t intStatus = LCDIF_CTRL1 & (LCDIF_CTRL1_BM_ERROR_IRQ | LCDIF_CTRL1_OVERFLOW_IRQ | LCDIF_CTRL1_UNDERFLOW_IRQ | LCDIF_CTRL1_CUR_FRAME_DONE_IRQ | LCDIF_CTRL1_VSYNC_EDGE_IRQ);
   // clear all pending LCD interrupts
   LCDIF_CTRL1_CLR = intStatus;
@@ -231,7 +234,7 @@ static void LCDIF_ISR(void) {
 }
 
 
-static void InitLUT(void) {
+void eLCDIF_t4::InitLUT(void) {
   /* index 6 in the "classic" 16-color palette should be brown instead of dark yellow.
    * The values of green and green-intensity are swapped for this entry to accomplish this
    */
