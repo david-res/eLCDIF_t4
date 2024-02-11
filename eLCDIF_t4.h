@@ -104,7 +104,7 @@ class eLCDIF_t4 {
     int _busWidth, _colorDepth;
     void setVideoClock(int num, int den);
     void initLCDPins();
-    void initLCDIF(eLCDIF_t4_config config);
+    void initLCDIF(eLCDIF_t4_config config, int busWidth, int colorDepth);
   
     static volatile bool s_frameDone;
     static void LCDIF_ISR();

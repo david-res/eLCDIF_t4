@@ -8,11 +8,9 @@
 */
 
 void eLCDIF_t4::begin(BUS_WIDTH busWidth, WORD_LENGTH colorDepth, eLCDIF_t4_config config){
-  _busWidth = busWidth;
-  _colorDepth = colorDepth;
   setVideoClock(4*config.clk_num, config.clk_den);
   initLCDPins();
-  initLCDIF(config);
+  initLCDIF(config, busWidth, colorDepth);
 };
 
 void eLCDIF_t4::setCurrentBufferAddress(const void*buffer){
@@ -186,7 +184,7 @@ void eLCDIF_t4::initLCDPins(){
 
 };
 
-void eLCDIF_t4::initLCDIF(eLCDIF_t4_config config){
+void eLCDIF_t4::initLCDIF(eLCDIF_t4_config config, int busWidth, int colorDepth){
   Serial.print("Resetting LCDIF...");
   // reset LCDIF
   // ungate clock and wait for it to clear
@@ -207,7 +205,7 @@ void eLCDIF_t4::initLCDIF(eLCDIF_t4_config config){
 
   Serial.print("Initializing LCDIF registers...");
   // 8 bits in, using LUT
-  LCDIF_CTRL = LCDIF_CTRL_WORD_LENGTH(3) | LCDIF_CTRL_LCD_DATABUS_WIDTH(3) | LCDIF_CTRL_DOTCLK_MODE | LCDIF_CTRL_BYPASS_COUNT | LCDIF_CTRL_MASTER;
+  LCDIF_CTRL = LCDIF_CTRL_WORD_LENGTH(colorDepth) | LCDIF_CTRL_LCD_DATABUS_WIDTH(busWidth) | LCDIF_CTRL_DOTCLK_MODE | LCDIF_CTRL_BYPASS_COUNT | LCDIF_CTRL_MASTER;
   // recover on underflow = garbage will be displayed if memory is too slow, but at least it keeps running instead of aborting
   LCDIF_CTRL1 = LCDIF_CTRL1_RECOVER_ON_UNDERFLOW | LCDIF_CTRL1_BYTE_PACKING_FORMAT(0x07);
   LCDIF_TRANSFER_COUNT = LCDIF_TRANSFER_COUNT_V_COUNT(config.height) | LCDIF_TRANSFER_COUNT_H_COUNT(config.width);
