@@ -95,6 +95,7 @@ class eLCDIF_t4 {
     void begin(BUS_WIDTH busWidth, WORD_LENGTH colorDepth, eLCDIF_t4_config config);
     void setCurrentBufferAddress(const void*buffer);
     void setNextBufferAddress(const void*buffer);
+    void runLCD();
     typedef void(*CBF)();
     static CBF _callback;
     void onCompleteCallback(CBF callback);
@@ -102,7 +103,7 @@ class eLCDIF_t4 {
     private:
     int _busWidth, _colorDepth;
     void setVideoClock(int num, int den);
-    void initPins();
+    void initLCDPins();
     void initLCDIF(eLCDIF_t4_config config);
   
     static volatile bool s_frameDone;

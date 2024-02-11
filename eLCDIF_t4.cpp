@@ -1,30 +1,18 @@
 #include "eLCDIF_t4.h"
 
 
-//Public Functions
+/*
+
+#### Public Functions ####
+
+*/
+
 void eLCDIF_t4::begin(BUS_WIDTH busWidth, WORD_LENGTH colorDepth, eLCDIF_t4_config config){
   _busWidth = busWidth;
   _colorDepth = colorDepth;
   setVideoClock(4*config.clk_num, config.clk_den);
-  initPins();
+  initLCDPins();
   initLCDIF(config);
-
-
-  attachInterruptVector(IRQ_LCDIF, LCDIF_ISR);
-  NVIC_SET_PRIORITY(IRQ_LCDIF, 32);
-  NVIC_ENABLE_IRQ(IRQ_LCDIF);
-
-
-  Serial.println("Unmasking frame interrupt");
-  // unmask CUR_FRAME_DONE interrupt
-  LCDIF_CTRL1_SET = LCDIF_CTRL1_CUR_FRAME_DONE_IRQ_EN;
-  // VSYNC_EDGE interrupt also available to notify beginning of raster
-  //LCDIF_CTRL1_SET = LCDIF_CTRL1_VSYNC_EDGE_IRQ_EN;
-  Serial.println("Running LCD");
-  // start LCD
-  LCDIF_CTRL_SET = LCDIF_CTRL_RUN | LCDIF_CTRL_DOTCLK_MODE;
-
-
 };
 
 void eLCDIF_t4::setCurrentBufferAddress(const void*buffer){
@@ -40,9 +28,31 @@ void eLCDIF_t4::onCompleteCallback(CBF callback){
 
 };
 
+void eLCDIF_t4::runLCD(){
+  attachInterruptVector(IRQ_LCDIF, LCDIF_ISR);
+  NVIC_SET_PRIORITY(IRQ_LCDIF, 32);
+  NVIC_ENABLE_IRQ(IRQ_LCDIF);
 
 
-//Private Functions
+  Serial.println("Unmasking frame interrupt");
+  // unmask CUR_FRAME_DONE interrupt
+  LCDIF_CTRL1_SET = LCDIF_CTRL1_CUR_FRAME_DONE_IRQ_EN;
+  // VSYNC_EDGE interrupt also available to notify beginning of raster
+  //LCDIF_CTRL1_SET = LCDIF_CTRL1_VSYNC_EDGE_IRQ_EN;
+  Serial.println("Running LCD");
+  // start LCD
+  LCDIF_CTRL_SET = LCDIF_CTRL_RUN | LCDIF_CTRL_DOTCLK_MODE;
+
+};
+
+
+
+
+/*
+
+#### Private Functions ####
+
+*/
 
 void eLCDIF_t4::setVideoClock(int num, int den){
   int post_divide = 0;
@@ -105,7 +115,7 @@ void eLCDIF_t4::setVideoClock(int num, int den){
   Serial.println("done.");
 
 };
-void eLCDIF_t4::initPins(){
+void eLCDIF_t4::initLCDPins(){
   IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_00 = 0;
   IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_01 = 0;
   IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_02 = 0;
