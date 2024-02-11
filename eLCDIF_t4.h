@@ -62,16 +62,16 @@
 
 
 enum BUS_WIDTH {
-        BUS_8BIT = 1,
-        BUS_16BIT = 0,
-        BUS_18BIT = 2,
-        BUS_24BIT = 3
+        BUS_8BIT = 0x1,
+        BUS_16BIT = 0x0,
+        BUS_18BIT = 0x2,
+        BUS_24BIT = 0x3
     };
 enum WORD_LENGTH{
-        WORD_8BIT = 1,
-        WORD_16BIT = 0,
-        WORD_18BIT = 2,
-        WORD_24BIT = 3
+        WORD_8BIT = 0x1,
+        WORD_16BIT = 0x0,
+        WORD_18BIT = 0x2,
+        WORD_24BIT = 0x3
     };
 
 typedef struct {
