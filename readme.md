@@ -9,6 +9,8 @@ Information about this peripheral can be found in the reference manual, chapter 
 
 In order to display data on screens larger than 320*240px @ 16 or 18 bit color depth, external SDRAM is needed (which is only available on the dev board/custom board) and requires the experimental SDRAM_t4 library (<https://github.com/mjs513/SDRAM_t4>).
 
+![a 800*480px 24-bit bus LCD  displaying a static image @ 16.7M colors (24-bit color depth)](/misc/IMG_5146.jpg)
+
 ## Usage:
 
 Include the library using:
