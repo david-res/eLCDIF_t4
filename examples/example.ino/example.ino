@@ -1,6 +1,6 @@
 #include "eLCDIF_t4.h"
 eLCDIF_t4 lcd;
-eLCDIF_t4_config lcd_config = {480, 8, 4, 4, 800, 8, 4, 4, 25, 24, 0, 0};
+eLCDIF_t4_config lcd_config = {480, 8, 8, 4, 800, 8, 8, 4, 25, 24, 0, 0};
 
 void setup() {
   // put your setup code here, to run once:
