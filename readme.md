@@ -26,13 +26,13 @@ eLCDIF_t4 lcd;
 Create a config structure using the lcdif_rgb_mode_config struct
 
 ``` cpp
-lcdif_rgb_mode_config config;
+eLCDIF_t4_config config;
 ```
 
 Call the begin function passing though the following arguments:
 * Bus width with the following options: `BUS_8BIT`, `BUS_16BIT`, `BUS_18BIT`, `BUS_24BIT`
 * Word Length (color depth) with the following options: `WORD_8BIT`, `WORD_16BIT,` `WORD_18BIT`, `WORD_24BIT`
-* Config - copy your config contructor into the begin function
+* Config - referance your config contructor into the begin function
 ``` cpp
-begin(BUS_24BIT, WORD_24BIT, &config);
+begin(BUS_24BIT, WORD_24BIT, config);
 ```

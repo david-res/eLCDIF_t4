@@ -2,7 +2,7 @@
 
 
 //Public Functions
-void eLCDIF_t4::begin(BUS_WIDTH busWidth, WORD_LENGTH colorDepth, lcdif_rgb_mode_config config){
+void eLCDIF_t4::begin(BUS_WIDTH busWidth, WORD_LENGTH colorDepth, eLCDIF_t4_config config){
   _busWidth = busWidth;
   _colorDepth = colorDepth;
   setVideoClock(4*config.clk_num, config.clk_den);
@@ -176,7 +176,7 @@ void eLCDIF_t4::initPins(){
 
 };
 
-void eLCDIF_t4::initLCDIF(lcdif_rgb_mode_config config){
+void eLCDIF_t4::initLCDIF(eLCDIF_t4_config config){
   Serial.print("Resetting LCDIF...");
   // reset LCDIF
   // ungate clock and wait for it to clear

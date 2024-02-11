@@ -88,11 +88,11 @@ typedef struct {
   uint32_t clk_den; // pix_clk denominator
   uint32_t vpolarity; // 0 (active low vsync/negative) or LCDIF_VDCTRL0_VSYNC_POL (active high/positive)
   uint32_t hpolarity; // 0 (active low hsync/negative) or LCDIF_VDCTRL0_HSYNC_POL (active high/positive)
-} lcdif_rgb_mode_config;
+} eLCDIF_t4_config;
 
 class eLCDIF_t4 {
     public:
-    void begin(BUS_WIDTH busWidth, WORD_LENGTH colorDepth, lcdif_rgb_mode_config config);
+    void begin(BUS_WIDTH busWidth, WORD_LENGTH colorDepth, eLCDIF_t4_config config);
     void setCurrentBufferAddress(const void*buffer);
     void setNextBufferAddress(const void*buffer);
     typedef void(*CBF)();
@@ -103,7 +103,7 @@ class eLCDIF_t4 {
     int _busWidth, _colorDepth;
     void setVideoClock(int num, int den);
     void initPins();
-    void initLCDIF(lcdif_rgb_mode_config config);
+    void initLCDIF(eLCDIF_t4_config config);
   
     static volatile bool s_frameDone;
     static void LCDIF_ISR();
