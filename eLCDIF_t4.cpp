@@ -7,7 +7,7 @@
 
 */
 
-void eLCDIF_t4::begin(BUS_WIDTH busWidth, WORD_LENGTH colorDepth, eLCDIF_t4_config config){
+FLASHMEM void eLCDIF_t4::begin(BUS_WIDTH busWidth, WORD_LENGTH colorDepth, eLCDIF_t4_config config){
   internal_config = config;
   initLCDPins();
   setVideoClock(4*config.clk_num, config.clk_den);
@@ -24,12 +24,12 @@ void eLCDIF_t4::setNextBufferAddress(void*buffer){
   arm_dcache_flush_delete((void*)buffer,internal_config.height*internal_config.width);
 
 };
-void eLCDIF_t4::onCompleteCallback(CBF callback){
+FLASHMEM void eLCDIF_t4::onCompleteCallback(CBF callback){
   _callback = callback;
 
 };
 
-void eLCDIF_t4::runLCD(){
+FLASHMEM void eLCDIF_t4::runLCD(){
   attachInterruptVector(IRQ_LCDIF, LCDIF_ISR);
   NVIC_SET_PRIORITY(IRQ_LCDIF, 32);
   NVIC_ENABLE_IRQ(IRQ_LCDIF);
@@ -55,7 +55,7 @@ void eLCDIF_t4::runLCD(){
 
 */
 
-void eLCDIF_t4::setVideoClock(int num, int den){
+FLASHMEM void eLCDIF_t4::setVideoClock(int num, int den){
   int post_divide = 0;
   while (num < 27*den) num <<= 1, ++post_divide;
   int div_select = num / den;
@@ -116,7 +116,7 @@ void eLCDIF_t4::setVideoClock(int num, int den){
   Serial.println("done.");
 
 };
-void eLCDIF_t4::initLCDPins(){
+FLASHMEM void eLCDIF_t4::initLCDPins(){
   //Configure pads to ALT0 - eLCDIF signals
   IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_00 = 0;
   IOMUXC_SW_MUX_CTL_PAD_GPIO_B0_01 = 0;
@@ -184,7 +184,7 @@ void eLCDIF_t4::initLCDPins(){
 
 };
 
-void eLCDIF_t4::initLCDIF(eLCDIF_t4_config config, int busWidth, int colorDepth){
+FLASHMEM void eLCDIF_t4::initLCDIF(eLCDIF_t4_config config, int busWidth, int colorDepth){
   Serial.print("Resetting LCDIF...");
   // reset LCDIF
   // ungate clock and wait for it to clear
@@ -229,7 +229,7 @@ volatile bool eLCDIF_t4::s_frameDone = false;
 eLCDIF_t4::CBF eLCDIF_t4::_callback = nullptr;
 
 
-void eLCDIF_t4::LCDIF_ISR(void) {
+FASTRUN void eLCDIF_t4::LCDIF_ISR(void) {
   uint32_t intStatus = LCDIF_CTRL1 & (LCDIF_CTRL1_BM_ERROR_IRQ | LCDIF_CTRL1_OVERFLOW_IRQ | LCDIF_CTRL1_UNDERFLOW_IRQ | LCDIF_CTRL1_CUR_FRAME_DONE_IRQ | LCDIF_CTRL1_VSYNC_EDGE_IRQ);
   // clear all pending LCD interrupts
   LCDIF_CTRL1_CLR = intStatus;
