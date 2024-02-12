@@ -8,17 +8,20 @@
 */
 
 void eLCDIF_t4::begin(BUS_WIDTH busWidth, WORD_LENGTH colorDepth, eLCDIF_t4_config config){
-  setVideoClock(4*config.clk_num, config.clk_den);
+  internal_config = config;
   initLCDPins();
+  setVideoClock(4*config.clk_num, config.clk_den);
   initLCDIF(config, busWidth, colorDepth);
 };
 
-void eLCDIF_t4::setCurrentBufferAddress(const void*buffer){
+void eLCDIF_t4::setCurrentBufferAddress(void*buffer){
   LCDIF_CUR_BUF = (uint32_t)buffer;
+  arm_dcache_flush_delete((void*)buffer,internal_config.height*internal_config.width);
 
 };
-void eLCDIF_t4::setNextBufferAddress(const void*buffer){
+void eLCDIF_t4::setNextBufferAddress(void*buffer){
   LCDIF_NEXT_BUF = (uint32_t)buffer;
+  arm_dcache_flush_delete((void*)buffer,internal_config.height*internal_config.width);
 
 };
 void eLCDIF_t4::onCompleteCallback(CBF callback){
@@ -203,7 +206,7 @@ void eLCDIF_t4::initLCDIF(eLCDIF_t4_config config, int busWidth, int colorDepth)
   LCDIF_CTRL_CLR = LCDIF_CTRL_SFTRST | LCDIF_CTRL_CLKGATE;
   Serial.println("done.");
 
-  Serial.print("Initializing LCDIF registers...");
+  Serial.println("Initializing LCDIF registers...");
   // 8 bits in, using LUT
   LCDIF_CTRL = LCDIF_CTRL_WORD_LENGTH(colorDepth) | LCDIF_CTRL_LCD_DATABUS_WIDTH(busWidth) | LCDIF_CTRL_DOTCLK_MODE | LCDIF_CTRL_BYPASS_COUNT | LCDIF_CTRL_MASTER;
   // recover on underflow = garbage will be displayed if memory is too slow, but at least it keeps running instead of aborting
@@ -218,6 +221,8 @@ void eLCDIF_t4::initLCDIF(eLCDIF_t4_config config, int busWidth, int colorDepth)
   // horizontal wait = back porch + sync, vertical wait = back porch + sync
   LCDIF_VDCTRL3 = LCDIF_VDCTRL3_HORIZONTAL_WAIT_CNT(config.hsw+config.hbp) | LCDIF_VDCTRL3_VERTICAL_WAIT_CNT(config.vsw+config.vbp);
   LCDIF_VDCTRL4 = LCDIF_VDCTRL4_SYNC_SIGNALS_ON | LCDIF_VDCTRL4_DOTCLK_H_VALID_DATA_CNT(config.width);
+  Serial.printf("LCDIF_CTRL: 0x%x\nLCDIF_CTRL1: 0x%x\nLCDIF_TRANSFER_COUNT: 0x%x\nLCDIF_VDCTRL0: 0x%x\nLCDIF_VDCTRL1: 0x%x\nLCDIF_VDCTRL2: 0x%x\nLCDIF_VDCTRL3: 0x%x\nLCDIF_VDCTRL4: 0x%x\n", LCDIF_CTRL, LCDIF_CTRL1,LCDIF_TRANSFER_COUNT, LCDIF_VDCTRL0, LCDIF_VDCTRL1, LCDIF_VDCTRL2, LCDIF_VDCTRL3, LCDIF_VDCTRL4);
+
   Serial.println("done.");
 
 

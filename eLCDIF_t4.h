@@ -93,15 +93,15 @@ typedef struct {
 class eLCDIF_t4 {
     public:
     void begin(BUS_WIDTH busWidth, WORD_LENGTH colorDepth, eLCDIF_t4_config config);
-    void setCurrentBufferAddress(const void*buffer);
-    void setNextBufferAddress(const void*buffer);
+    void setCurrentBufferAddress(void*buffer);
+    void setNextBufferAddress(void*buffer);
     void runLCD();
     typedef void(*CBF)();
     static CBF _callback;
     void onCompleteCallback(CBF callback);
     
     private:
-    int _busWidth, _colorDepth;
+    eLCDIF_t4_config internal_config;
     void setVideoClock(int num, int den);
     void initLCDPins();
     void initLCDIF(eLCDIF_t4_config config, int busWidth, int colorDepth);
