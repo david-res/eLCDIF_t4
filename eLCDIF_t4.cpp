@@ -236,10 +236,11 @@ FASTRUN void eLCDIF_t4::LCDIF_ISR(void) {
 
   if (intStatus & (LCDIF_CTRL1_CUR_FRAME_DONE_IRQ | LCDIF_CTRL1_VSYNC_EDGE_IRQ)) {
     s_frameDone = true;
-  }
-  if (_callback){
+    if (_callback){
     _callback();
+    }
   }
+  
   asm volatile("dsb");
 }
 
