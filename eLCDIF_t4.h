@@ -31,6 +31,8 @@
 #define LCDIF_CTRL1_UNDERFLOW_IRQ  ((uint32_t)1 << 10)
 #define LCDIF_CTRL1_CUR_FRAME_DONE_IRQ  ((uint32_t)1 << 9)
 #define LCDIF_CTRL1_VSYNC_EDGE_IRQ  ((uint32_t)1 << 8)
+#define LCDIF_CTRL2_OUTSTANDING_REQ(n) (((uint32_t)(((uint32_t)(n)) << 21U)) & 0xE00000U)
+#define LCDIF_CTRL2_BURST_LEN_8(n) (((uint32_t)(((uint32_t)(n)) << 20U)) & 0x100000U)
 #define LCDIF_TRANSFER_COUNT_V_COUNT(n) ((uint32_t)(((n) & 0xFFFF) << 16))
 #define LCDIF_TRANSFER_COUNT_H_COUNT(n) ((uint32_t)(((n) & 0xFFFF) << 0))
 #define LCDIF_VDCTRL0_ENABLE_PRESENT ((uint32_t)1 << 28)
@@ -105,8 +107,7 @@ class eLCDIF_t4 {
     void setVideoClock(int num, int den);
     void initLCDPins();
     void initLCDIF(eLCDIF_t4_config config, int busWidth, int colorDepth);
-  
-    static volatile bool s_frameDone;
+
     static void LCDIF_ISR();
     void lcdifCallback();
     bool customCallback = false;
