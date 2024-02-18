@@ -210,7 +210,7 @@ FLASHMEM void eLCDIF_t4::initLCDIF(eLCDIF_t4_config config, int busWidth, int co
   LCDIF_CTRL = LCDIF_CTRL_WORD_LENGTH(colorDepth) | LCDIF_CTRL_LCD_DATABUS_WIDTH(busWidth) | LCDIF_CTRL_DOTCLK_MODE | LCDIF_CTRL_BYPASS_COUNT | LCDIF_CTRL_MASTER;
   // recover on underflow = garbage will be displayed if memory is too slow, but at least it keeps running instead of aborting
   LCDIF_CTRL1 = LCDIF_CTRL1_RECOVER_ON_UNDERFLOW | LCDIF_CTRL1_BYTE_PACKING_FORMAT(0x07);
-  LCDIF_CTRL2 = LCDIF_CTRL2_OUTSTANDING_REQ(3) | LCDIF_CTRL2_BURST_LEN_8(1);
+  LCDIF_CTRL2 = LCDIF_CTRL2_OUTSTANDING_REQ(4) | LCDIF_CTRL2_BURST_LEN_8(0);
   LCDIF_TRANSFER_COUNT = LCDIF_TRANSFER_COUNT_V_COUNT(config.height) | LCDIF_TRANSFER_COUNT_H_COUNT(config.width);
   // set vsync and hsync signal polarity (depends on mode/resolution), vsync length
   LCDIF_VDCTRL0 = LCDIF_VDCTRL0_ENABLE_PRESENT | LCDIF_VDCTRL0_VSYNC_PERIOD_UNIT | LCDIF_VDCTRL0_VSYNC_PULSE_WIDTH_UNIT | LCDIF_VDCTRL0_VSYNC_PULSE_WIDTH(config.vsw) | config.vpolarity | config.hpolarity;
