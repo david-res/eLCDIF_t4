@@ -112,7 +112,5 @@ class eLCDIF_t4 {
     void lcdifCallback();
     bool customCallback = false;
     eLCDIF_t4 *LCDIFcallback;
-
-    void InitLUT();
 };
 #endif
