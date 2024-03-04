@@ -14,11 +14,11 @@ FLASHMEM void eLCDIF_t4::begin(BUS_WIDTH busWidth, WORD_LENGTH colorDepth, eLCDI
   initLCDIF(config, busWidth, colorDepth);
 };
 
-void eLCDIF_t4::setCurrentBufferAddress(void*buffer){
+FASTRUN void eLCDIF_t4::setCurrentBufferAddress(void*buffer){
   LCDIF_CUR_BUF = (uint32_t)buffer;
 };
 
-void eLCDIF_t4::setNextBufferAddress(void*buffer){
+FASTRUN void eLCDIF_t4::setNextBufferAddress(void*buffer){
   LCDIF_NEXT_BUF = (uint32_t)buffer;
 };
 
@@ -28,7 +28,7 @@ FLASHMEM void eLCDIF_t4::onCompleteCallback(CBF callback){
 
 FLASHMEM void eLCDIF_t4::runLCD(){
   attachInterruptVector(IRQ_LCDIF, LCDIF_ISR);
-  NVIC_SET_PRIORITY(IRQ_LCDIF, 32);
+  NVIC_SET_PRIORITY(IRQ_LCDIF, 128);
   NVIC_ENABLE_IRQ(IRQ_LCDIF);
 
   Serial.println("Unmasking frame interrupt");
